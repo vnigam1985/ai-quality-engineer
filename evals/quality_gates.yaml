@@ -1,0 +1,22 @@
+# Quality gates: the minimum scores a change must keep.
+# scripts/gate.py reads this file and fails the build when a score is lower.
+# Set thresholds from a measured BASELINE (week 3) and a calibrated judge (week 4),
+# not from gut feel. Change them in a pull request, with the reason.
+
+promptfoo_offline:
+  min_pass_rate: 1.0        # deterministic checks: every one must pass
+
+promptfoo_judge:
+  min_pass_rate: 0.9        # LLM-graded checks allow a little judge noise
+
+ragas:
+  faithfulness: 0.85
+  answer_relevancy: 0.75
+  context_precision: 0.70
+  context_recall: 0.80
+
+judge_calibration:
+  min_cohen_kappa: 0.6      # don't gate on a judge that disagrees with humans
+
+redteam:
+  max_critical_findings: 0
