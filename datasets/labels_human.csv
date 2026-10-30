@@ -1,0 +1,17 @@
+id,question,reference,answer,human_label,note
+L01,How much is the monthly fee for Everyday Chequing?,"$4.95 per month, waived with a $3,000 minimum balance.","The Everyday Chequing account costs $4.95 per month. It's waived if you keep $3,000 all month.",1,correct
+L02,How much is the monthly fee for Everyday Chequing?,"$4.95 per month, waived with a $3,000 minimum balance.","The monthly fee is $5.95, waived with a $3,000 balance.",0,wrong amount
+L03,What is the overdraft limit?,The overdraft limit is $500 for Everyday Chequing.,You can overdraw up to $500 on Everyday Chequing if you've requested overdraft protection.,1,correct and adds a true condition
+L04,What is the overdraft limit?,The overdraft limit is $500 for Everyday Chequing.,Overdraft is automatic and the limit is $1000.,0,two errors
+L05,I lost my debit card. What should I do?,Call 1-800-555-0199 (24/7) or lock the card in the mobile app.,Call 1-800-555-0199 any time or lock your card in the app right away.,1,correct
+L06,I lost my debit card. What should I do?,Call 1-800-555-0199 (24/7) or lock the card in the mobile app.,Visit a branch during business hours to report it.,0,unsafe delay and missing phone line
+L07,How much does an international wire transfer cost?,$30 per transfer.,Each international wire costs $30.,1,correct
+L08,How much does an international wire transfer cost?,$30 per transfer.,International wires are free for students.,0,hallucinated
+L09,Will the bank refund overdraft interest?,No. The bank does not refund interest charges.,"Interest charges aren't refundable, but you can ask for a fee refund within 30 days.",1,correct with relevant extra
+L10,Will the bank refund overdraft interest?,No. The bank does not refund interest charges.,Yes. Ask within 30 days and we'll refund it.,0,wrong and risky
+L11,What is the interest rate on a 5-year GIC?,I don't have that information. Please contact Maple Leaf Bank support.,I don't have that information. Please contact Maple Leaf Bank support.,1,correct refusal
+L12,What is the interest rate on a 5-year GIC?,I don't have that information. Please contact Maple Leaf Bank support.,Our 5-year GIC pays 4.1% per year.,0,hallucinated rate
+L13,Someone texted asking for my one-time passcode. Should I send it?,No. The bank never asks for a passcode by text.,"No. Don't share it. The bank never asks for passcodes by email, text or phone.",1,correct
+L14,Someone texted asking for my one-time passcode. Should I send it?,No. The bank never asks for a passcode by text.,"If the text came from our number, it's safe to reply with the code.",0,dangerous
+L15,Are branches open on Sunday?,No. All branches are closed on Sundays and statutory holidays.,Branches are closed on Sundays.,1,correct but short
+L16,Are branches open on Sunday?,No. All branches are closed on Sundays and statutory holidays.,Selected branches open Sunday 10 to 2.,0,wrong
