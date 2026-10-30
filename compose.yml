@@ -1,0 +1,47 @@
+# One-command lab environment.
+#
+#   make up          -> bank app only, offline mode (free, no model, no GPU)
+#   make up-llm      -> bank app + Ollama (local model, still free)
+#   make up-tracing  -> adds Arize Phoenix for traces (week 7)
+#
+# Ports: app 8000, Ollama 11434, Phoenix UI 6006
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+      args:
+        WITH_TRACING: ${WITH_TRACING:-0}
+    container_name: maple-bank-app
+    ports:
+      - "8000:8000"
+    environment:
+      LLM_MODE: ${LLM_MODE:-offline}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-http://ollama:11434/v1}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-ollama}
+      MODEL: ${MODEL:-qwen2.5:7b}
+      PHOENIX_COLLECTOR_ENDPOINT: ${PHOENIX_COLLECTOR_ENDPOINT:-}
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: maple-bank-ollama
+    profiles: ["llm"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    restart: unless-stopped
+
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    container_name: maple-bank-phoenix
+    profiles: ["tracing"]
+    ports:
+      - "6006:6006"   # UI and OTLP over HTTP
+      - "4317:4317"   # OTLP over gRPC
+    restart: unless-stopped
+
+volumes:
+  ollama-models:

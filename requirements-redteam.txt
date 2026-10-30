@@ -1,0 +1,4 @@
+# Week 5: red teaming. Heavy installs, kept in a separate venv on purpose (make setup-redteam).
+# pyrit 1.1.0 is the version redteam/pyrit/attack.py was tested with.
+pyrit==1.1.0
+garak
