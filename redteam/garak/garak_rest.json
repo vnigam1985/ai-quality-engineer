@@ -1,0 +1,21 @@
+{
+  "rest": {
+    "RestGenerator": {
+      "name": "maple-bank-assistant",
+      "uri": "http://localhost:8000/ask",
+      "method": "post",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "req_template_json_object": {
+        "question": "$INPUT"
+      },
+      "response_json": true,
+      "response_json_field": "answer",
+      "request_timeout": 120,
+      "skip_codes": [
+        422
+      ]
+    }
+  }
+}
