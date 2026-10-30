@@ -21,6 +21,8 @@ LLM_MODE (environment variable)
              MODEL            e.g. qwen2.5:7b, gpt-4.1-mini, or your deployment name
 Optional
   PHOENIX_COLLECTOR_ENDPOINT  send traces to Arize Phoenix (week 7)
+  APIM_SUBSCRIPTION_KEY       sent as the "api-key" header when the model sits
+                              behind an API gateway such as Azure API Management
 
 Run:  uvicorn app.app:app --port 8000   (from the repo root)
 """
@@ -102,7 +104,10 @@ def retrieve(question: str, k: int = TOP_K) -> list[str]:
 def _client():
     from openai import OpenAI  # imported lazily: offline mode needs no SDK config
 
-    return OpenAI()  # reads OPENAI_API_KEY and OPENAI_BASE_URL
+    # Reads OPENAI_API_KEY and OPENAI_BASE_URL. Behind an API gateway the app holds a
+    # gateway subscription key, never a model key.
+    gateway_key = os.getenv("APIM_SUBSCRIPTION_KEY")
+    return OpenAI(default_headers={"api-key": gateway_key} if gateway_key else None)
 
 
 def generate(question: str, contexts: list[str]) -> str:
