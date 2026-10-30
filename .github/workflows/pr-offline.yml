@@ -41,7 +41,7 @@ jobs:
       - name: Week 2 - golden dataset is valid
         run: python scripts/validate_dataset.py datasets/golden_v1.jsonl
 
-      - name: Weeks 6-7 - API, agent and UI tests
+      - name: Week 6 - API, agent and UI tests
         run: pytest tests -q --browser chromium
 
       - name: Week 1 - promptfoo deterministic evals
