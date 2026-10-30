@@ -4,7 +4,7 @@ A golden dataset is your test suite for an AI system: questions with the answer 
 
 ## golden_v1.jsonl
 
-20 items for the [sample app](../sample-app). One JSON object per line:
+20 items for the [bank assistant](../app/kb/maple-bank-policies.md). One JSON object per line:
 
 | Field | Meaning |
 | --- | --- |
