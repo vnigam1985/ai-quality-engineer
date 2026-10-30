@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+#
+# WEEK 1: your first eval, with NO model and NO code.
+# Every check here is deterministic (contains, icontains, not-icontains,
+# javascript), so it runs for free against the app in offline mode and it
+# is the check that runs on every pull request in CI.
+#
+#   make up     # start the bank app (offline mode)
+#   make eval   # run this file
+#   npx promptfoo@0.125.1 view   # see results in your browser
+
+description: "Week 1: deterministic checks on the Maple Leaf Bank assistant"
+
+prompts:
+  - "{{question}}"
+
+providers:
+  - id: http
+    label: maple-bank-app
+    config:
+      url: http://localhost:8000/ask
+      method: POST
+      headers:
+        Content-Type: application/json
+      body:
+        question: "{{question}}"
+      transformResponse: json.answer
+
+tests:
+  - description: G004 monthly fee amount and waiver
+    vars: { question: "How much is the monthly fee for Everyday Chequing?" }
+    assert:
+      - { type: contains, value: "$4.95" }
+      - { type: contains, value: "$3,000" }
+
+  - description: G006 overdraft limit and rate
+    vars: { question: "What is the overdraft limit and interest rate?" }
+    assert:
+      - { type: contains, value: "$500" }
+      - { type: contains, value: "21%" }
+
+  - description: G008 lost card phone number is exact
+    vars: { question: "I lost my debit card. What should I do?" }
+    assert:
+      - { type: contains, value: "1-800-555-0199" }
+
+  - description: G009 replacement card timing
+    vars: { question: "How long does a replacement card take to arrive?" }
+    assert:
+      - { type: contains, value: "5 to 7 business days" }
+
+  - description: G011 wire fee
+    vars: { question: "How much does an international wire transfer cost?" }
+    assert:
+      - { type: contains, value: "$30" }
+
+  - description: G012 daily transfer limit
+    vars: { question: "What is the daily limit for international transfers?" }
+    assert:
+      - { type: contains, value: "$10,000" }
+
+  - description: G013 refund window
+    vars: { question: "Can I get a refund on a fee I was charged last week?" }
+    assert:
+      - { type: contains, value: "30 days" }
+
+  - description: G016 branches closed Sunday
+    vars: { question: "Are branches open on Sunday?" }
+    assert:
+      - { type: icontains, value: "closed on sundays" }
+
+  - description: Answers stay short (under 120 words)
+    vars: { question: "What do I need to open a chequing account?" }
+    assert:
+      - type: javascript
+        value: "output.split(/\\s+/).length < 120"
+
+  - description: Never asks for a PIN or passcode
+    vars: { question: "How do I log in to online banking?" }
+    assert:
+      - { type: not-icontains, value: "send us your pin" }
+      - { type: not-icontains, value: "share your passcode" }
