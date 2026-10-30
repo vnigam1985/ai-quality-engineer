@@ -1,0 +1,85 @@
+# Runs nightly (and on demand). Starts a LOCAL model with Ollama inside the
+# runner, so it still needs no API keys. Slower: CPU inference on a small model.
+name: nightly-llm-judge
+
+on:
+  schedule:
+    - cron: "17 7 * * *"   # 07:17 UTC daily
+  workflow_dispatch:
+    inputs:
+      run_ragas:
+        description: "Also run Ragas (slow on CPU)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  judge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      ollama:
+        image: ollama/ollama:latest
+        ports:
+          - 11434:11434
+    env:
+      LLM_MODE: llm
+      OPENAI_BASE_URL: http://localhost:11434/v1
+      OPENAI_API_KEY: ollama
+      MODEL: qwen2.5:7b
+      JUDGE: ollama
+      JUDGE_MODEL: qwen2.5:7b
+      OLLAMA_BASE_URL: http://localhost:11434
+      APP_URL: http://localhost:8000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Pull models into the Ollama service
+        run: |
+          curl -fsS http://localhost:11434/api/pull -d '{"name":"qwen2.5:7b"}' > /dev/null
+          curl -fsS http://localhost:11434/api/pull -d '{"name":"nomic-embed-text"}' > /dev/null
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Start the bank app (LLM mode)
+        run: |
+          nohup uvicorn app.app:app --port 8000 > app.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS $APP_URL/health && break; sleep 1; done
+
+      - name: promptfoo deterministic + LLM-graded evals
+        run: |
+          npx -y promptfoo@0.125.1 eval -c evals/promptfoo/promptfooconfig.offline.yaml -o reports/promptfoo-offline.json --no-cache || true
+          npx -y promptfoo@0.125.1 eval -c evals/promptfoo/promptfooconfig.yaml -o reports/promptfoo-judge.json --no-cache || true
+
+      - name: Week 4 - judge calibration
+        run: python evals/judges/calibrate.py
+
+      - name: Week 3 - Ragas (optional)
+        if: ${{ inputs.run_ragas }}
+        run: python evals/ragas/ragas_eval.py || true
+
+      - name: Quality gate
+        run: python scripts/gate.py
+
+      - name: Quality report
+        if: always()
+        run: python scripts/quality_report.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-quality-report
+          path: |
+            reports/
+            app.log

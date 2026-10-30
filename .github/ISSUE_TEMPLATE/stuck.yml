@@ -1,0 +1,35 @@
+name: I'm stuck
+description: Something in the course doesn't work for you
+title: "[Stuck] Week N: short description"
+labels: ["help wanted"]
+body:
+  - type: dropdown
+    id: week
+    attributes:
+      label: Which week?
+      options: ["Week 0: setup", "Week 1: no-code evals", "Week 2: golden dataset", "Week 3: RAG metrics", "Week 4: judge calibration", "Week 5: red teaming", "Week 6: agent and UI testing", "Week 7: observability", "Week 8: CI and report"]
+    validations: { required: true }
+  - type: input
+    id: command
+    attributes:
+      label: The command you ran
+      placeholder: make eval
+    validations: { required: true }
+  - type: textarea
+    id: error
+    attributes:
+      label: Full error output
+      render: shell
+    validations: { required: true }
+  - type: input
+    id: env
+    attributes:
+      label: OS, Python version, Docker yes/no, LLM_MODE
+      placeholder: macOS 15, Python 3.12, Docker yes, offline
+  - type: checkboxes
+    id: checked
+    attributes:
+      label: Before you post
+      options:
+        - label: I read TROUBLESHOOTING.md
+          required: true

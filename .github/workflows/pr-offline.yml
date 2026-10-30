@@ -1,0 +1,63 @@
+# Runs on every pull request. Uses the app in OFFLINE mode: no model, no API keys,
+# no secrets, so it's safe for pull requests from forks.
+name: pr-offline-quality-gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LLM_MODE: offline
+      APP_URL: http://localhost:8000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install (light set, no eval libraries needed offline)
+        run: |
+          pip install fastapi "uvicorn[standard]" openai httpx pytest pytest-playwright pyyaml
+          python -m playwright install --with-deps chromium
+
+      - name: Start the bank app (offline)
+        run: |
+          nohup uvicorn app.app:app --port 8000 > app.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS $APP_URL/health && break; sleep 1; done
+
+      - name: Week 2 - golden dataset is valid
+        run: python scripts/validate_dataset.py datasets/golden_v1.jsonl
+
+      - name: Weeks 6-7 - API, agent and UI tests
+        run: pytest tests -q --browser chromium
+
+      - name: Week 1 - promptfoo deterministic evals
+        run: npx -y promptfoo@0.125.1 eval -c evals/promptfoo/promptfooconfig.offline.yaml -o reports/promptfoo-offline.json --no-cache
+
+      - name: Week 8 - quality gate
+        run: python scripts/gate.py
+
+      - name: Week 8 - quality report
+        if: always()
+        run: python scripts/quality_report.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quality-report
+          path: |
+            reports/
+            app.log
