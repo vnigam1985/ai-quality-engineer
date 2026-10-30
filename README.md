@@ -44,7 +44,7 @@ Need Python 3.11+, Node.js 20+ and Docker. No Docker? Use `make run` instead of 
 
 ## The course
 
-| Week | Topic | You learn | Command | Tag | Cost |
+| Week | Topic | You learn | Command | Branch | Cost |
 | --- | --- | --- | --- | --- | --- |
 | 0 | [Set up the lab](weeks/00-setup/README.md) | Run and read the system under test | `make up` | `week-00` | $0 |
 | 1 | [No-code evals](weeks/01-no-code-evals/README.md) | promptfoo YAML tests, catching a regression | `make eval` | `week-01` | $0 |
@@ -58,7 +58,7 @@ Need Python 3.11+, Node.js 20+ and Docker. No Docker? Use `make run` instead of 
 
 Each week's folder has: goal, diagram, steps, a "check your work" list, the portfolio artifact, a resume bullet and links to go deeper. Plan 6 to 10 hours a week.
 
-**Jump to any week's starting code:** `git checkout week-03` (tags `week-00` to `week-08`). `make help` lists every command.
+**Jump to any week:** `git checkout week-03` (branches `week-00` to `week-08`; each holds the code up to that week). `make help` lists every command.
 
 ## What you're testing
 
